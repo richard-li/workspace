@@ -1,0 +1,82 @@
+package student;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Random;
+import java.util.Set;
+
+import game.Manager;
+import game.Node;
+import game.Parcel;
+import game.Truck;
+
+public class MyManager extends Manager {
+	boolean preProcess;
+	private Random randomGenerator;
+
+	public MyManager() {
+	}
+
+	@Override
+	public void run() {
+		Node depot = getBoard().getTruckDepot();
+		Set<Parcel> parcels = getParcels();
+		ArrayList<Truck> trucks = getTrucks();
+		int n = 0;
+		for (Parcel p : parcels) {
+			ArrayList<Parcel> data = new ArrayList<Parcel>();
+			data.add(p);
+			if (n < trucks.size()) {
+				trucks.get(n).setUserData(data);
+			}
+			n++;
+		}
+		
+		
+		for (Truck t : trucks) {
+			Parcel pkg = ((ArrayList<Parcel>) t.getUserData()).get(0);
+			t.setTravelPath(Paths.dijkstra(depot, pkg.start));
+		}
+		preProcess = true;
+	}
+
+	@Override
+	public void truckNotification(Truck t, Notification message) {
+		if (!preProcess)
+			return;
+		
+		Node now = t.getLocation();
+		if (getParcels().size() > 0) {
+			if (t.getLoad() != null) {
+				Node end = t.getLoad().destination;
+				if (message == Notification.WAITING) {
+					LinkedList<Node> path = Paths.dijkstra(now, end);
+					t.setTravelPath(path);
+				} else if (message == Notification.LOCATION_CHANGED && now == end) {
+					t.dropoffLoad();
+					t.setUserData(null);
+				}
+			} else {
+				synchronized (getParcels()) {
+					if (t.getUserData() == null) {
+						ArrayList<Parcel> avail = new ArrayList<Parcel>(getParcels());
+						Parcel p = avail.get(0);
+						ArrayList<Parcel> userdata = new ArrayList<Parcel>();
+						userdata.add(p);
+						t.setUserData(userdata);
+					}
+				}
+				Parcel pkg = ((ArrayList<Parcel>) t.getUserData()).get(0);
+				if (message == Notification.WAITING) {
+					t.setTravelPath(Paths.dijkstra(now, pkg.start));
+				}
+				if (message == Notification.PARCEL_AT_NODE && now == pkg.start) {
+					t.pickupLoad(pkg);
+				}
+			}
+		} else {
+			LinkedList<Node> toHome = Paths.dijkstra(t.getLocation(), getBoard().getTruckDepot());
+			t.setTravelPath(toHome);
+		}
+	}
+}

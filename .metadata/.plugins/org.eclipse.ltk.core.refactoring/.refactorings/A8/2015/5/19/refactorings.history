@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Convert local variable &apos;student.MyManager.truckNotification().randomGenerator&apos; in &apos;student.MyManager.truckNotification()&apos; to field&#x0A;- Original project: &apos;A8&apos;&#x0A;- Original element: &apos;student.MyManager.truckNotification().randomGenerator&apos;&#x0A;- Field name: &apos;randomGenerator&apos;&#x0A;- Initialize field in method&#x0A;- Declared visibility: &apos;private&apos;" description="Convert local variable &apos;randomGenerator&apos; to field" final="false" flags="2" id="org.eclipse.jdt.ui.promote.temp" initialize="1" input="/src&lt;student{MyManager.java" name="randomGenerator" selection="1596 22" stamp="1430938436633" static="false" version="1.0" visibility="2"/>
+</session>
